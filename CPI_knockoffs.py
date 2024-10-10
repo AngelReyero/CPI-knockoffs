@@ -84,7 +84,7 @@ def CPI_j(X_tilde, j, X_train, X_test):
     X_tilde[:,j]=cpi.sample(np.delete(X_test, j , axis=1))
 
 def knockoff_generation(X_train, X_test, n_jobs=10):
-    X_tilde=np.zeros_like(X_test)
+    X_tilde=np.copy(X_test)
     Parallel(n_jobs=n_jobs)(delayed(CPI_j)(X_tilde, j, X_train, X_test) for j in range(X_test.shape[1]))        
     return X_tilde
 

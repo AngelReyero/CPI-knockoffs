@@ -2,11 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-n_subjects = 100
-n_clusters = 50
+n_subjects = 500
+n_clusters = 500
 rho = 0.7
+sparsity = 0.1
 fdr = 0.1
-y_method='nonlin'
+y_method='hidimstat'
 
 def plot_results(bounds, fdr, nsubjects, n_clusters, rho, y_method, power=False):
     plt.figure(figsize=(10, 10), layout="constrained")
@@ -26,7 +27,7 @@ def plot_results(bounds, fdr, nsubjects, n_clusters, rho, y_method, power=False)
         )
         plt.title(f"FDR = {fdr},  y_method={y_method}, n = {nsubjects}, p = {n_clusters}, rho = {rho}")
         plt.ylabel("Empirical Power")
-        plt.savefig("power"+y_method+str(nsubjects)+str(n_clusters)+str(rho)+".pdf", bbox_inches="tight")
+        plt.savefig("visualization/power"+y_method+str(nsubjects)+str(n_clusters)+str(rho)+".pdf", bbox_inches="tight")
 
     else:
         plt.hlines(fdr, xmin=0.5, xmax=3.5, label="Requested FDR control", color="red")
@@ -39,7 +40,7 @@ def plot_results(bounds, fdr, nsubjects, n_clusters, rho, y_method, power=False)
         plt.title(f"FDR = {fdr}, y_method={y_method}, n = {nsubjects}, p = {n_clusters}, rho = {rho}")
         plt.ylabel("Empirical FDP")
         plt.legend(loc="best")
-        plt.savefig("FDR"+y_method+str(nsubjects)+str(n_clusters)+str(rho)+".pdf", bbox_inches="tight")
+        plt.savefig("visualization/FDR"+y_method+str(nsubjects)+str(n_clusters)+str(rho)+".pdf", bbox_inches="tight")
 
     #plt.show()
 

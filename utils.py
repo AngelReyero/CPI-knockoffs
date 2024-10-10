@@ -11,7 +11,7 @@ import random
 import matplotlib.pyplot as plt
 from scipy.stats import ks_2samp
 from sklearn.preprocessing import PolynomialFeatures
-
+from hidimstat.data_simulation import simu_data
 
 def hypertune_predictor(estimator, X, y, param_grid):
     grid_search = GridSearchCV(estimator, param_grid=param_grid, cv=2, n_jobs=-1, scoring= 'r2')
@@ -196,6 +196,10 @@ def toep (d, rho=0.6):
   return np.array([[ (rho)**abs(i-j) for i in range(d)]for j in range(d)])
 
 def GenToysDataset(n=1000, d=10, cor='toep', y_method="nonlin", k=2, mu=None, rho_toep=0.6, seed=0, sparsity=0.1):
+    if y_method=="hidimstats":
+        X, y, _, non_zero_index = simu_data(n, d, rho=rho_toep, sparsity=sparsity, seed=seed)
+        return X, y, non_zero_index
+    
     X = np.zeros((n,d))
     y = np.zeros(n)
     if mu is None:

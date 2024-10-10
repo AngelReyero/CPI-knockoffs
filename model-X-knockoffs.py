@@ -43,41 +43,34 @@ warnings.filterwarnings("ignore")
 plt.rcParams.update({"font.size": 26})
 
 # Number of observations
-n_subjects = 500
-# Number of variables
+n_subjects = 1000
 n_clusters = 500
-# Correlation parameter
 rho = 0.7
-# Ratio of number of variables with non-zero coefficients over total
-# coefficients
 sparsity = 0.1
-# Desired controlled False Discovery Rate (FDR) level
 fdr = 0.1
-seed = 45
+y_method='nonlin'
+
+
+
+seed = 0
 n_bootstraps = 25
 n_jobs = 20
-runs = 10
-y_method='hidimstat'
+runs = 20
 rng = check_random_state(seed)
 seed_list = rng.randint(1, np.iinfo(np.int32).max, runs)
 
 
 def single_run(
-    n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=None, y_method='nonlin'
+    n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=0, y_method='nonlin', offset=1
 ):
     # Generate data
-    if y_method=="hidimstat":
-        X, y, _, non_zero_index = simu_data(
-            n_subjects, n_clusters, rho=rho, sparsity=sparsity, seed=seed
-        )
-    else:
-        X, y, non_zero_index = GenToysDataset(n=n_subjects, d=n_clusters, cor='toep', y_method=y_method, k=2, mu=None, rho_toep=rho)
+    X, y, non_zero_index = GenToysDataset(n=n_subjects, d=n_clusters, cor='toep', y_method=y_method, k=2, mu=None, rho_toep=rho, sparsity=sparsity, seed=seed)
 
-    cpi_selection = CPI_knockoff(X, y, fdr=fdr, n_jobs=n_jobs, seed=seed)
+    cpi_selection = CPI_knockoff(X, y, fdr=fdr, n_jobs=n_jobs, seed=seed, offset=offset)
     print(cpi_selection)
     fdp_cpi, power_cpi= cal_fdp_power(cpi_selection, non_zero_index)
     # Use model-X Knockoffs [1]
-    mx_selection = model_x_knockoff(X, y, fdr=fdr, n_jobs=n_jobs, seed=seed)
+    mx_selection = model_x_knockoff(X, y, fdr=fdr, n_jobs=n_jobs, seed=seed, offset=offset)
     print(mx_selection)
     fdp_mx, power_mx = cal_fdp_power(mx_selection, non_zero_index)
     # Use p-values aggregation [2]
@@ -118,7 +111,7 @@ powers_cpi = []
 for i, seed in enumerate(seed_list):
     print("Experiment:"+str(i))
     fdp_cpi, fdp_mx,  power_cpi, power_mx= single_run(
-        n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=seed , y_method=y_method,
+        n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=seed , y_method=y_method,offset=0,
     )
    
     fdps_mx.append(fdp_mx)
