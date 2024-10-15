@@ -14,12 +14,13 @@ n_subjects = 1000
 n_clusters = 500
 rhos = [0, 0.1, 0.3, 0.5, 0.7, 0.9]
 sparsity = 0.1
-fdr = 0.1
+fdr = 0.25
 seed = 0
 n_bootstraps = 25
 n_jobs = 20
 runs = 20
-y_method='nonlin'
+y_method='lin'
+offset=1
 rng = check_random_state(seed)
 seed_list = rng.randint(1, np.iinfo(np.int32).max, runs)
 
@@ -50,7 +51,7 @@ for j,rho in enumerate(rhos):
     print("Experiment:"+str(rho))
     for i, seed in enumerate(seed_list):
         fdp_cpi, fdp_mx,  power_cpi, power_mx= single_run(
-            n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=seed , y_method=y_method,
+            n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=seed , y_method=y_method,offset=offset,
         )
         res_fdp[0, i, j]=fdp_mx
         res_fdp[1, i, j]=fdp_cpi
@@ -76,6 +77,6 @@ for l in range(runs):
             f_res1=pd.DataFrame(f_res1)
             f_res=pd.concat([f_res, f_res1], ignore_index=True)
 f_res.to_csv(
-    f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}.csv",
+    f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}.csv",
     index=False,
 ) 

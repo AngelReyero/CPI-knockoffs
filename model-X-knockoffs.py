@@ -44,18 +44,18 @@ plt.rcParams.update({"font.size": 26})
 
 # Number of observations
 n_subjects = 1000
-n_clusters = 500
+n_clusters = 5000
 rho = 0.7
 sparsity = 0.1
-fdr = 0.1
-y_method='nonlin'
-
+fdr = 0.25
+y_method='lin'
+offset=1
 
 
 seed = 0
 n_bootstraps = 25
 n_jobs = 20
-runs = 20
+runs = 25
 rng = check_random_state(seed)
 seed_list = rng.randint(1, np.iinfo(np.int32).max, runs)
 
@@ -111,7 +111,7 @@ powers_cpi = []
 for i, seed in enumerate(seed_list):
     print("Experiment:"+str(i))
     fdp_cpi, fdp_mx,  power_cpi, power_mx= single_run(
-        n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=seed , y_method=y_method,offset=0,
+        n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=seed , y_method=y_method,offset=offset,
     )
    
     fdps_mx.append(fdp_mx)
@@ -119,10 +119,7 @@ for i, seed in enumerate(seed_list):
 
     powers_mx.append(power_mx)
     powers_cpi.append(power_cpi)
-    print(fdps_mx)
-    print(fdps_cpi)
-    print(powers_mx)
-    print(powers_cpi)
+    
 
 # Plot FDP and Power distributions
 
@@ -134,4 +131,4 @@ powers = [powers_mx, powers_cpi]
 p={'fdp_mx':fdps_mx, 'fdp_cpi':fdps_cpi, 'power_mx':powers_mx, 'power_cpi':powers_cpi}
 df_res=pd.DataFrame(p)
 # Save to CSV files
-df_res.to_csv(f"results_csv/{y_method}_rho{rho}_n{n_subjects}_p{n_clusters}.csv", index=False)
+df_res.to_csv(f"results_csv/{y_method}_rho{rho}_n{n_subjects}_p{n_clusters}_offset{offset}.csv", index=False)

@@ -12,6 +12,9 @@ import matplotlib.pyplot as plt
 from scipy.stats import ks_2samp
 from sklearn.preprocessing import PolynomialFeatures
 from hidimstat.data_simulation import simu_data
+from joblib import Parallel, delayed
+from sklearn.linear_model import Lasso
+
 
 def hypertune_predictor(estimator, X, y, param_grid):
     grid_search = GridSearchCV(estimator, param_grid=param_grid, cv=2, n_jobs=-1, scoring= 'r2')
@@ -75,19 +78,9 @@ class CPI_sampler():
 
 
 
-def best_mod(X_train, y_train, seed=2024):
+def best_mod(X_train, y_train, seed=2024, n_jobs=5):
     modelMLP=MLPRegressor(random_state=seed)
 
-    # mlp_param_grid = {
-    #     'hidden_layer_sizes': [(50,), (100,), (150,), (50, 50), (100, 100), (50, 50, 50)],
-    #     'activation': ['tanh', 'relu', 'logistic'],
-    #     'solver': ['adam', 'sgd', 'lbfgs'],
-    #     'alpha': [0.0001, 0.001, 0.01, 0.1, 1.0],
-    #     'learning_rate': ['constant', 'invscaling', 'adaptive'],
-    #     'learning_rate_init': [0.001, 0.01, 0.1],
-    #     'batch_size': ['auto', 16, 32, 64],
-    #     'momentum': [0.9, 0.95, 0.99]  # Only relevant for 'sgd' solver
-    # }
 
     mlp_param_grid = {
         'hidden_layer_sizes': [(50,), (100,), (50, 50)],  # Simplified to 3 options
@@ -100,18 +93,10 @@ def best_mod(X_train, y_train, seed=2024):
         'momentum': [0.9, 0.95]  
     }
 
-    modelMLP, MLP_score= hypertune_predictor(modelMLP, X_train, y_train, mlp_param_grid)
+    # modelMLP, MLP_score= hypertune_predictor(modelMLP, X_train, y_train, mlp_param_grid)
 
-    print("MLP score: "+str(MLP_score))
+    # print("MLP score: "+str(MLP_score))
     modelRF=RandomForestRegressor(random_state=seed)
-    # rf_param_grid = {
-    #     'n_estimators': [50, 100, 200, 300, 500],
-    #     'max_depth': [None, 10, 20, 30, 40, 50],
-    #     'min_samples_split': [2, 5, 10, 15, 20],
-    #     'min_samples_leaf': [1, 2, 4, 6, 8],
-    #     'max_features': ['auto', 'sqrt', 'log2'],
-    #     'bootstrap': [True, False]
-    # }
 
     rf_param_grid = {
         'n_estimators': [100, 200], 
@@ -124,20 +109,10 @@ def best_mod(X_train, y_train, seed=2024):
 
 
 
-    modelRF, RF_score=hypertune_predictor(modelRF, X_train, y_train, rf_param_grid)
+    # modelRF, RF_score=hypertune_predictor(modelRF, X_train, y_train, rf_param_grid)
 
-    print("RF score: "+str(RF_score))
+    # print("RF score: "+str(RF_score))
     modelGB= GradientBoostingRegressor(random_state=seed)
-
-    # gb_param_grid = {
-    #     'n_estimators': [100, 200, 300, 400, 500],
-    #     'learning_rate': [0.001, 0.01, 0.05, 0.1, 0.2],
-    #     'max_depth': [3, 5, 7, 9, 11],
-    #     'min_samples_split': [2, 5, 10, 15],
-    #     'min_samples_leaf': [1, 2, 4, 6],
-    #     'subsample': [0.8, 0.9, 1.0],
-    #     'loss': ['squared_error', 'absolute_error', 'huber']
-    # }
 
     gb_param_grid = {
         'n_estimators': [100, 300],  
@@ -150,19 +125,9 @@ def best_mod(X_train, y_train, seed=2024):
     }
 
 
-    modelGB, GB_score=hypertune_predictor(modelGB, X_train, y_train, gb_param_grid)
-    print("GB score: "+str(GB_score))
+    # modelGB, GB_score=hypertune_predictor(modelGB, X_train, y_train, gb_param_grid)
+    # print("GB score: "+str(GB_score))
     modelxgb = XGBRegressor(random_state=seed)
-
-    # xgb_param_grid = {
-    #     'n_estimators': [100, 200, 300, 400],
-    #     'learning_rate': [0.01, 0.1, 0.2],
-    #     'max_depth': [3, 5, 7, 9],
-    #     'min_child_weight': [1, 5, 10],
-    #     'subsample': [0.8, 0.9, 1.0],
-    #     'colsample_bytree': [0.8, 0.9, 1.0],
-    #     'gamma': [0, 0.1, 0.2, 0.3]
-    # }
 
     xgb_param_grid = {
         'n_estimators': [100, 300],  
@@ -176,15 +141,36 @@ def best_mod(X_train, y_train, seed=2024):
 
 
 
-    modelxgb, xgb_score=hypertune_predictor(modelxgb, X_train, y_train, xgb_param_grid)
+    #modelxgb, xgb_score=hypertune_predictor(modelxgb, X_train, y_train, xgb_param_grid)
 
-    print("XGB score: "+str(xgb_score))
+    #print("XGB score: "+str(xgb_score))
 
-    models=[modelMLP, modelRF, modelGB, modelxgb]
-    scores=[MLP_score, RF_score, GB_score, xgb_score]
-    max_index = scores.index(max(scores))
-    print(max_index)
-    return models[max_index]
+    modelLasso = Lasso(random_state=seed)
+
+# Define the hyperparameter grid for Lasso
+    lasso_param_grid = {
+        'alpha': [0.0001, 0.001, 0.01, 0.1, 1, 10, 100],  # Regularization strength
+        'max_iter': [1000, 5000, 10000],                  # Maximum number of iterations
+        'tol': [1e-4, 1e-3, 1e-2],                       # Tolerance for stopping criteria
+    }
+
+# Hypertune the Lasso model
+    #modelLasso, Lasso_score = hypertune_predictor(modelLasso, X_train, y_train, lasso_param_grid)
+
+# Print the Lasso score
+    #print("Lasso score: " + str(Lasso_score))
+    results = Parallel(n_jobs=n_jobs)(delayed(hypertune_predictor)(model, X_train, y_train, grid) for (model, grid) in [(modelMLP, mlp_param_grid), (modelRF, rf_param_grid), (modelGB, gb_param_grid), (modelxgb, xgb_param_grid), (modelLasso, lasso_param_grid)])
+    best_score=-10000
+    for model, score in results:
+        if score>best_score:
+            best_score=score
+            best_model=model
+    # models=[modelMLP, modelRF, modelGB, modelxgb, modelLasso]
+    # scores=[MLP_score, RF_score, GB_score, xgb_score, Lasso_score]
+    # max_index = scores.index(max(scores))
+    # print(max_index)
+    print(f"Best score is:{best_score}")
+    return best_model
 
 
 # covariance matrice 
@@ -203,7 +189,7 @@ def GenToysDataset(n=1000, d=10, cor='toep', y_method="nonlin", k=2, mu=None, rh
     X = np.zeros((n,d))
     y = np.zeros(n)
     if mu is None:
-        mu=np.ones(d)
+        mu=np.zeros(d)
     if cor =='iso': 
         # Generate a simple MCAR distribution, with isotrope observation 
         X= np.random.normal(size=(n,d))
@@ -220,6 +206,9 @@ def GenToysDataset(n=1000, d=10, cor='toep', y_method="nonlin", k=2, mu=None, rh
     if y_method == "nonlin":
         y=X[:,0]*X[:,1]*(X[:,2]>0)+2*X[:,3]*X[:,4]*(0>X[:,2])
         non_zero_index=np.array([0,1,2, 3, 4])
+    elif y_method == "nonlin2":
+        y=X[:,0]*X[:,1]*(X[:,2]>0)+2*X[:,3]*X[:,4]*(0>X[:,2])+X[:, 5]*np.exp(X[:6])+X[:7]**2*X[:8]+X[:9]*(X[:8]>0)
+        non_zero_index=np.array([0,1,2, 3, 4, 5, 6, 7, 8, 9])
     elif y_method == "lin":
         y=X[:,0]-X[:,1]+2*X[:, 2]+ X[:,3]-3*X[:,4]
         non_zero_index=np.array([0,1,2, 3, 4])

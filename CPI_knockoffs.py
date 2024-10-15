@@ -77,15 +77,17 @@ def stat_coef_diff(
         test_score.append(np.mean((y-model.predict(X_cond))**2-(y-y_fitted)**2))
     return np.array(test_score)
 
-def CPI_j(X_tilde, j, X_train, X_test):
+def CPI_j(j, X_train, X_test):
     cpi=CPI_sampler()
     cpi.fit(np.delete(X_train, j, axis=1), X_train[:,j])
     cpi.fit_res(np.delete(X_test, j, axis=1), X_test[:,j])
-    X_tilde[:,j]=cpi.sample(np.delete(X_test, j , axis=1))
+    return cpi.sample(np.delete(X_test, j , axis=1))
 
 def knockoff_generation(X_train, X_test, n_jobs=10):
-    X_tilde=np.copy(X_test)
-    Parallel(n_jobs=n_jobs)(delayed(CPI_j)(X_tilde, j, X_train, X_test) for j in range(X_test.shape[1]))        
+    #X_tilde=np.copy(X_test)
+    #X_tilde.setflags(write=True)
+    X_tilde=Parallel(n_jobs=n_jobs)(delayed(CPI_j)(j, X_train, X_test) for j in range(X_test.shape[1])) 
+    X_tilde=np.array(list(X_tilde)).T
     return X_tilde
 
 

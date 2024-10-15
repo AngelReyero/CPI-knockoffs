@@ -13,9 +13,10 @@ fdr = 0.1
 seed = 0
 runs = 10
 y_method='nonlin'
+offset=1
 
 
-df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}.csv")
+df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}.csv")
 palette = {'CPI-knockoff': 'purple', 'm-X-knockoff': 'blue'}
 
 sns.set(rc={'figure.figsize':(4,4)})
@@ -34,7 +35,7 @@ plt.subplots_adjust(right=0.75)
 
 plt.ylabel(r'FDR',fontsize=15 )
 plt.xlabel(r'$\rho$',fontsize=15 )
-plt.savefig("visualization/rho_{y_method}_n{n_subjects}_p{n_clusters}_fdr.pdf", bbox_inches="tight")
+plt.savefig("visualization/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_fdr.pdf", bbox_inches="tight")
 plt.show()
 
 df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}.csv")
@@ -56,5 +57,5 @@ plt.subplots_adjust(right=0.75)
 
 plt.ylabel(r'Power',fontsize=15 )
 plt.xlabel(r'$\rho$',fontsize=15 )
-plt.savefig("visualization/rho_{y_method}_n{n_subjects}_p{n_clusters}_power.pdf", bbox_inches="tight")
+plt.savefig("visualization/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_power.pdf", bbox_inches="tight")
 plt.show()
