@@ -16,8 +16,8 @@ from joblib import Parallel, delayed
 from sklearn.linear_model import Lasso
 
 
-def hypertune_predictor(estimator, X, y, param_grid):
-    grid_search = GridSearchCV(estimator, param_grid=param_grid, cv=2, n_jobs=-1, scoring= 'r2')
+def hypertune_predictor(estimator, X, y, param_grid, n_jobs=10):
+    grid_search = GridSearchCV(estimator, param_grid=param_grid, cv=2, n_jobs=n_jobs, scoring= 'r2')
     grid_search.fit(X, y)
     best_hyperparameters = grid_search.best_params_
 
@@ -33,7 +33,7 @@ class CPI_sampler():
         estimator=None,
         do_hyper=True,
         dict_hyper=None,
-        random_state=2024,
+        random_state=0,
     ):
         self.estimator = estimator
         self.do_hyper = do_hyper
@@ -41,6 +41,14 @@ class CPI_sampler():
         self.random_state = random_state
         random.seed(random_state)
         if dict_hyper==None and estimator == None:
+            self.estimator = Lasso(random_state=random_state)
+
+            self.dict_hyper = {
+                'alpha': [0.0001, 0.001, 0.01, 0.1, 1, 10, 100],  
+                'max_iter': [1000, 5000, 10000],                 
+                'tol': [1e-4, 1e-3, 1e-2],                     
+            }
+        elif estimator == 'RF':
             self.estimator=RandomForestRegressor()
             self.dict_hyper = {
                 'n_estimators': [100, 200],  
@@ -49,6 +57,7 @@ class CPI_sampler():
                 'min_samples_leaf': [1, 4],  
                 'max_features': ['sqrt', 'log2']  
             }
+           
         elif estimator=="nn":
             self.estimator=MLPRegressor()
             self.dict_hyper={
@@ -63,7 +72,7 @@ class CPI_sampler():
     
     def fit(self, X, y):
         if self.do_hyper:
-            self.estimator, _= hypertune_predictor(self.estimator, X, y, self.dict_hyper)
+            self.estimator, _= hypertune_predictor(self.estimator, X, y, self.dict_hyper, n_jobs=1)
         else:
             self.estimator= self.estimator.fit(X, y)
 
@@ -78,7 +87,13 @@ class CPI_sampler():
 
 
 
-def best_mod(X_train, y_train, seed=2024, n_jobs=5):
+def best_mod(X_train, y_train, seed=2024, n_jobs=10, verbose=False, regressor=None, dict_reg=None):
+    if regressor is not None:
+        model, score=hypertune_predictor(regressor, X_train, y_train, dict_reg, n_jobs=n_jobs)
+        if verbose: 
+            return model, score
+        else:
+            return model
     modelMLP=MLPRegressor(random_state=seed)
 
 
@@ -93,9 +108,9 @@ def best_mod(X_train, y_train, seed=2024, n_jobs=5):
         'momentum': [0.9, 0.95]  
     }
 
-    # modelMLP, MLP_score= hypertune_predictor(modelMLP, X_train, y_train, mlp_param_grid)
+    modelMLP, MLP_score= hypertune_predictor(modelMLP, X_train, y_train, mlp_param_grid, n_jobs=n_jobs)
 
-    # print("MLP score: "+str(MLP_score))
+    print("MLP score: "+str(MLP_score))
     modelRF=RandomForestRegressor(random_state=seed)
 
     rf_param_grid = {
@@ -109,9 +124,9 @@ def best_mod(X_train, y_train, seed=2024, n_jobs=5):
 
 
 
-    # modelRF, RF_score=hypertune_predictor(modelRF, X_train, y_train, rf_param_grid)
+    modelRF, RF_score=hypertune_predictor(modelRF, X_train, y_train, rf_param_grid, n_jobs=n_jobs)
 
-    # print("RF score: "+str(RF_score))
+    print("RF score: "+str(RF_score))
     modelGB= GradientBoostingRegressor(random_state=seed)
 
     gb_param_grid = {
@@ -125,8 +140,8 @@ def best_mod(X_train, y_train, seed=2024, n_jobs=5):
     }
 
 
-    # modelGB, GB_score=hypertune_predictor(modelGB, X_train, y_train, gb_param_grid)
-    # print("GB score: "+str(GB_score))
+    modelGB, GB_score=hypertune_predictor(modelGB, X_train, y_train, gb_param_grid, n_jobs=n_jobs)
+    print("GB score: "+str(GB_score))
     modelxgb = XGBRegressor(random_state=seed)
 
     xgb_param_grid = {
@@ -141,9 +156,9 @@ def best_mod(X_train, y_train, seed=2024, n_jobs=5):
 
 
 
-    #modelxgb, xgb_score=hypertune_predictor(modelxgb, X_train, y_train, xgb_param_grid)
+    modelxgb, xgb_score=hypertune_predictor(modelxgb, X_train, y_train, xgb_param_grid, n_jobs=n_jobs)
 
-    #print("XGB score: "+str(xgb_score))
+    print("XGB score: "+str(xgb_score))
 
     modelLasso = Lasso(random_state=seed)
 
@@ -155,22 +170,23 @@ def best_mod(X_train, y_train, seed=2024, n_jobs=5):
     }
 
 # Hypertune the Lasso model
-    #modelLasso, Lasso_score = hypertune_predictor(modelLasso, X_train, y_train, lasso_param_grid)
+    modelLasso, Lasso_score = hypertune_predictor(modelLasso, X_train, y_train, lasso_param_grid, n_jobs=n_jobs)
 
-# Print the Lasso score
-    #print("Lasso score: " + str(Lasso_score))
-    results = Parallel(n_jobs=n_jobs)(delayed(hypertune_predictor)(model, X_train, y_train, grid) for (model, grid) in [(modelMLP, mlp_param_grid), (modelRF, rf_param_grid), (modelGB, gb_param_grid), (modelxgb, xgb_param_grid), (modelLasso, lasso_param_grid)])
-    best_score=-10000
-    for model, score in results:
-        if score>best_score:
-            best_score=score
-            best_model=model
-    # models=[modelMLP, modelRF, modelGB, modelxgb, modelLasso]
-    # scores=[MLP_score, RF_score, GB_score, xgb_score, Lasso_score]
-    # max_index = scores.index(max(scores))
-    # print(max_index)
-    print(f"Best score is:{best_score}")
-    return best_model
+    print("Lasso score: " + str(Lasso_score))
+    # results = Parallel(n_jobs=n_jobs)(delayed(hypertune_predictor)(model, X_train, y_train, grid) for (model, grid) in [(modelMLP, mlp_param_grid), (modelRF, rf_param_grid), (modelGB, gb_param_grid), (modelxgb, xgb_param_grid), (modelLasso, lasso_param_grid)])
+    # best_score=-10000
+    # for model, score in results:
+    #     if score>best_score:
+    #         best_score=score
+    #         best_model=model
+    models=[modelMLP, modelRF, modelGB, modelxgb, modelLasso]
+    scores=[MLP_score, RF_score, GB_score, xgb_score, Lasso_score]
+    max_index = scores.index(max(scores))
+    print(f'Best model:{max_index} with score {scores[max_index]}')
+    #print(f"Best score is:{best_score}")
+    if verbose:
+        return models[max_index], scores[max_index]
+    return models[max_index]#best_model
 
 
 # covariance matrice 
@@ -207,7 +223,7 @@ def GenToysDataset(n=1000, d=10, cor='toep', y_method="nonlin", k=2, mu=None, rh
         y=X[:,0]*X[:,1]*(X[:,2]>0)+2*X[:,3]*X[:,4]*(0>X[:,2])
         non_zero_index=np.array([0,1,2, 3, 4])
     elif y_method == "nonlin2":
-        y=X[:,0]*X[:,1]*(X[:,2]>0)+2*X[:,3]*X[:,4]*(0>X[:,2])+X[:, 5]*np.exp(X[:6])+X[:7]**2*X[:8]+X[:9]*(X[:8]>0)
+        y=X[:,0]*X[:,1]*(X[:,2]>0)+2*X[:,3]*X[:,4]*(0>X[:,2])+X[:, 5]*X[:,6]/2-X[:,7]**2*X[:,8]+X[:,9]*(X[:, 8]>0)
         non_zero_index=np.array([0,1,2, 3, 4, 5, 6, 7, 8, 9])
     elif y_method == "lin":
         y=X[:,0]-X[:,1]+2*X[:, 2]+ X[:,3]-3*X[:,4]

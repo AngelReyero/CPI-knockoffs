@@ -47,15 +47,15 @@ n_subjects = 1000
 n_clusters = 5000
 rho = 0.7
 sparsity = 0.1
-fdr = 0.25
+fdr = 0.2
 y_method='lin'
 offset=1
 
 
 seed = 0
 n_bootstraps = 25
-n_jobs = 20
-runs = 25
+n_jobs = 10
+runs = 10
 rng = check_random_state(seed)
 seed_list = rng.randint(1, np.iinfo(np.int32).max, runs)
 

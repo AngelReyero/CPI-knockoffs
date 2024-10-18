@@ -8,15 +8,14 @@ import numpy as np
 
 n_subjects = 100
 n_clusters = 50
+rhos = [0, 0.1, 0.3, 0.5, 0.7, 0.9]
 sparsity = 0.1
-fdr = 0.1
-seed = 0
-runs = 10
-y_method='nonlin'
+fdr = 0.2
+y_method='nonlin2'
 offset=1
+verbose_R2=True
 
-
-df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}.csv")
+df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}.csv")
 palette = {'CPI-knockoff': 'purple', 'm-X-knockoff': 'blue'}
 
 sns.set(rc={'figure.figsize':(4,4)})
@@ -35,11 +34,11 @@ plt.subplots_adjust(right=0.75)
 
 plt.ylabel(r'FDR',fontsize=15 )
 plt.xlabel(r'$\rho$',fontsize=15 )
-plt.savefig("visualization/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_fdr.pdf", bbox_inches="tight")
-plt.show()
+plt.savefig(f"visualization/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}_fdr.pdf", bbox_inches="tight")
+#plt.show()
 
-df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}.csv")
-
+df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}.csv")
+plt.figure()
 palette = {'CPI-knockoff': 'purple', 'm-X-knockoff': 'blue'}
 
 sns.set(rc={'figure.figsize':(4,4)})
@@ -55,7 +54,33 @@ plt.subplots_adjust(right=0.75)
 #plt.yscale('log')
 
 
+
+
 plt.ylabel(r'Power',fontsize=15 )
 plt.xlabel(r'$\rho$',fontsize=15 )
-plt.savefig("visualization/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_power.pdf", bbox_inches="tight")
-plt.show()
+plt.savefig(f"visualization/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}_power.pdf", bbox_inches="tight")
+#plt.show()
+
+
+
+
+df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}.csv")
+plt.figure()
+palette = {'CPI-knockoff': 'purple', 'm-X-knockoff': 'blue'}
+
+sns.set(rc={'figure.figsize':(4,4)})
+sns.lineplot(data=df,x='rho',y="score",hue='method',palette=palette)#,style='Regressor',markers=markers, dashes=dashes)
+#plt.ylim((1e-2,1e3))
+#plt.legend()
+
+plt.legend(bbox_to_anchor=(-1.20, 0.5), loc='center left', borderaxespad=0., fontsize=15)
+
+plt.subplots_adjust(right=0.75)
+
+#plt.xscale('log')
+#plt.yscale('log')
+
+
+plt.ylabel(r'$R^2$',fontsize=15 )
+plt.xlabel(r'$\rho$',fontsize=15 )
+plt.savefig(f"visualization/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}_score.pdf", bbox_inches="tight")

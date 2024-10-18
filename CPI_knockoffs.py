@@ -102,6 +102,9 @@ def CPI_knockoff(
     memory=None,
     n_jobs=10,
     seed=2024,
+    verbose_R2=False,
+    best_model=None,
+    dict_model=None,
 ):
     """CPI-Knockoff
 
@@ -130,6 +133,11 @@ def CPI_knockoff(
     seed : int or None, optional
         random seed used to generate knockoff variable
 
+    best_model : sklearn model, optional
+        Model used to regress Y given X
+
+    dict_model : 
+        Grid of hyperparameters to train the best_model
     Returns
     -------
     selected : 1D array, int
@@ -144,6 +152,9 @@ def CPI_knockoff(
     X_tilde : 2D array, (n_samples, n_features)
         knockoff design matrix
 
+    R_2 : float
+        R_2 of the regressor of Y given X
+
     References
     ----------
     .. footbibliography::
@@ -154,8 +165,10 @@ def CPI_knockoff(
         X = StandardScaler().fit_transform(X)
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
-    model=best_mod(X_train, y_train, seed=seed)
-
+    if verbose_R2:
+        model, score=best_mod(X_train, y_train, seed=seed, verbose=True, regressor=best_model, dict_reg=dict_model)
+    else: 
+        model=best_mod(X_train, y_train, seed=seed, regressor=best_model, dict_reg=dict_model)
 
     X_tilde = knockoff_generation(X_train, X_test, n_jobs=n_jobs)
     test_score = stat_coef_diff(
@@ -165,14 +178,11 @@ def CPI_knockoff(
     model,
     n_jobs=n_jobs,
    )
-    print(test_score)
-    t_mesh = np.sort(np.abs(test_score[test_score != 0]))
-    print(t_mesh)
     thres = _coef_diff_threshold(test_score, fdr=fdr, offset=offset)
-    print(thres)
     selected = np.where(test_score >= thres)[0]
 
     if verbose:
         return selected, test_score, thres, X_tilde
-
+    if verbose_R2:
+        return selected, score
     return selected

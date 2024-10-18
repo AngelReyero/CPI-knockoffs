@@ -3,11 +3,11 @@ import numpy as np
 import pandas as pd
 
 # Number of observations
-n_subjects = 1000
-n_clusters = 500
+n_subjects = 100
+n_clusters = 50
 rho = 0.7
 sparsity = 0.1
-fdr = 0.25
+fdr = 0.2
 y_method='lin'
 offset=1
 
