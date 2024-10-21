@@ -44,7 +44,7 @@ plt.rcParams.update({"font.size": 26})
 
 # Number of observations
 n_subjects = 1000
-n_clusters = 5000
+n_clusters = 500
 rho = 0.7
 sparsity = 0.1
 fdr = 0.2

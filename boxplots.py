@@ -4,7 +4,7 @@ import pandas as pd
 
 # Number of observations
 n_subjects = 1000
-n_clusters = 5000
+n_clusters = 500
 rho = 0.7
 sparsity = 0.1
 fdr = 0.2
@@ -26,9 +26,10 @@ def plot_results(bounds, fdr, nsubjects, n_clusters, rho, y_method, offset, powe
             ["MX Knockoffs", "CPI-knockoffs"],
             rotation=45,
             ha="right",
+            fontsize=18 
         )
-        plt.title(f"FDR = {fdr},  y_method={y_method}, n = {nsubjects}, p = {n_clusters}, rho = {rho}, offset= {offset}")
-        plt.ylabel("Empirical Power")
+        plt.title(f"FDR = {fdr},  y_method={y_method}, n = {nsubjects}, p = {n_clusters}, rho = {rho}, offset= {offset}", fontsize= 20)
+        plt.ylabel("Empirical Power", fontsize= 18)
         plt.savefig(f"visualization/power{y_method}_rho{rho}_n{n_subjects}_p{n_clusters}_offset{offset}.pdf", bbox_inches="tight")
     else:
         plt.hlines(fdr, xmin=0.5, xmax=3.5, label="Requested FDR control", color="red")
@@ -37,9 +38,10 @@ def plot_results(bounds, fdr, nsubjects, n_clusters, rho, y_method, offset, powe
             ["MX Knockoffs", "CPI-knockoffs"],
             rotation=45,
             ha="right",
+            fontsize=18  
         )
-        plt.title(f"FDR = {fdr}, y_method={y_method}, n = {nsubjects}, p = {n_clusters}, rho = {rho}")
-        plt.ylabel("Empirical FDP")
+        plt.title(f"FDR = {fdr}, y_method={y_method}, n = {nsubjects}, p = {n_clusters}, rho = {rho}", fontsize=20)
+        plt.ylabel("Empirical FDP", fontsize= 18)
         plt.legend(loc="best")
         plt.savefig(f"visualization/FDR{y_method}_rho{rho}_n{n_subjects}_p{n_clusters}_offset{offset}.pdf", bbox_inches="tight")
 
