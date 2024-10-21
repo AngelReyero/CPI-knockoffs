@@ -29,7 +29,7 @@ def plot_results(bounds, fdr, nsubjects, n_clusters, rho, y_method, offset, powe
             fontsize=18 
         )
         plt.title(f"FDR = {fdr},  y_method={y_method}, n = {nsubjects}, p = {n_clusters}, rho = {rho}, offset= {offset}", fontsize= 20)
-        plt.ylabel("Empirical Power", fontsize= 18)
+        plt.ylabel("Empirical Power", fontsize= 25)
         plt.savefig(f"visualization/power{y_method}_rho{rho}_n{n_subjects}_p{n_clusters}_offset{offset}.pdf", bbox_inches="tight")
     else:
         plt.hlines(fdr, xmin=0.5, xmax=3.5, label="Requested FDR control", color="red")
@@ -41,7 +41,7 @@ def plot_results(bounds, fdr, nsubjects, n_clusters, rho, y_method, offset, powe
             fontsize=18  
         )
         plt.title(f"FDR = {fdr}, y_method={y_method}, n = {nsubjects}, p = {n_clusters}, rho = {rho}", fontsize=20)
-        plt.ylabel("Empirical FDP", fontsize= 18)
+        plt.ylabel("Empirical FDP", fontsize= 25)
         plt.legend(loc="best")
         plt.savefig(f"visualization/FDR{y_method}_rho{rho}_n{n_subjects}_p{n_clusters}_offset{offset}.pdf", bbox_inches="tight")
 
