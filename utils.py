@@ -94,23 +94,23 @@ def best_mod(X_train, y_train, seed=2024, n_jobs=10, verbose=False, regressor=No
             return model, score
         else:
             return model
-    modelMLP=MLPRegressor(random_state=seed)
+    # modelMLP=MLPRegressor(random_state=seed)
 
 
-    mlp_param_grid = {
-        'hidden_layer_sizes': [(50,), (100,), (50, 50)],  # Simplified to 3 options
-        'activation': ['relu', 'tanh'],  # Focus on most common activations
-        'solver': ['adam', 'sgd'],  # Keep 2 popular solvers
-        'alpha': [0.0001, 0.001, 0.01],  # Narrow alpha range
-        'learning_rate': ['constant', 'adaptive'],  # Focus on the most common learning rates
-        'learning_rate_init': [0.001, 0.01],  # Two learning rate initialization values
-        'batch_size': ['auto', 32],  # Focus on default 'auto' and a smaller value
-        'momentum': [0.9, 0.95]  
-    }
+    # mlp_param_grid = {
+    #     'hidden_layer_sizes': [(50,), (100,), (50, 50)],  # Simplified to 3 options
+    #     'activation': ['relu', 'tanh'],  # Focus on most common activations
+    #     'solver': ['adam', 'sgd'],  # Keep 2 popular solvers
+    #     'alpha': [0.0001, 0.001, 0.01],  # Narrow alpha range
+    #     'learning_rate': ['constant', 'adaptive'],  # Focus on the most common learning rates
+    #     'learning_rate_init': [0.001, 0.01],  # Two learning rate initialization values
+    #     'batch_size': ['auto', 32],  # Focus on default 'auto' and a smaller value
+    #     'momentum': [0.9, 0.95]  
+    # }
 
-    modelMLP, MLP_score= hypertune_predictor(modelMLP, X_train, y_train, mlp_param_grid, n_jobs=n_jobs)
+    # modelMLP, MLP_score= hypertune_predictor(modelMLP, X_train, y_train, mlp_param_grid, n_jobs=n_jobs)
 
-    print("MLP score: "+str(MLP_score))
+    # print("MLP score: "+str(MLP_score))
     modelRF=RandomForestRegressor(random_state=seed)
 
     rf_param_grid = {
@@ -179,8 +179,8 @@ def best_mod(X_train, y_train, seed=2024, n_jobs=10, verbose=False, regressor=No
     #     if score>best_score:
     #         best_score=score
     #         best_model=model
-    models=[modelMLP, modelRF, modelGB, modelxgb, modelLasso]
-    scores=[MLP_score, RF_score, GB_score, xgb_score, Lasso_score]
+    models=[modelRF, modelGB, modelxgb, modelLasso]
+    scores=[RF_score, GB_score, xgb_score, Lasso_score]
     max_index = scores.index(max(scores))
     print(f'Best model:{max_index} with score {scores[max_index]}')
     #print(f"Best score is:{best_score}")
@@ -223,7 +223,7 @@ def GenToysDataset(n=1000, d=10, cor='toep', y_method="nonlin", k=2, mu=None, rh
         y=X[:,0]*X[:,1]*(X[:,2]>0)+2*X[:,3]*X[:,4]*(0>X[:,2])
         non_zero_index=np.array([0,1,2, 3, 4])
     elif y_method == "nonlin2":
-        y=X[:,0]*X[:,1]*(X[:,2]>0)+2*X[:,3]*X[:,4]*(0>X[:,2])+X[:, 5]*X[:,6]/2-X[:,7]**2*X[:,8]+X[:,9]*(X[:, 8]>0)
+        y=X[:,0]*X[:,1]*(X[:,2]>0)+2*X[:,3]*X[:,4]*(0>X[:,2])+X[:, 5]*X[:,6]/2-X[:,7]**2+X[:,9]*(X[:, 8]>0)
         non_zero_index=np.array([0,1,2, 3, 4, 5, 6, 7, 8, 9])
     elif y_method == "lin":
         y=X[:,0]-X[:,1]+2*X[:, 2]+ X[:,3]-3*X[:,4]

@@ -13,8 +13,8 @@ import pandas as pd
 from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
 
-n_subjects = 100
-n_clusters = 50
+n_subjects = 1000
+n_clusters = 500
 rhos = [0, 0.1, 0.3, 0.5, 0.7, 0.9]
 sparsity = 0.1
 fdr = 0.2
@@ -28,7 +28,7 @@ dict_model=None
 seed = 0
 n_bootstraps = 25
 n_jobs = 10
-runs = 2
+runs = 10
 
 rng = check_random_state(seed)
 seed_list = rng.randint(1, np.iinfo(np.int32).max, runs)
