@@ -5,15 +5,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-n_subjects = 100
-n_clusters = 50
+n_subjects = 1000
+n_clusters = 500
 rhos = [0, 0.1, 0.3, 0.5, 0.7, 0.9]
 sparsity = 0.1
 fdr = 0.2
 y_method='nonlin2'
 offset=1
-verbose_R2=True
 
+verbose_R2=True
 df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}.csv")
 palette = {'CPI-knockoff': 'purple', 'm-X-knockoff': 'blue', 'CPI-LS-knockoff': 'green'}
 
