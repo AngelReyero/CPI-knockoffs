@@ -22,8 +22,8 @@ def plot_results(bounds, fdr, nsubjects, n_clusters, rho, y_method, offset, powe
     plt.boxplot(bounds, sym="")
     if power:
         plt.xticks(
-            [1, 2],
-            ["MX Knockoffs", "CPI-knockoffs"],
+            [1, 2, 3],
+            ["MX Knockoffs", "CPI-knockoffs", "CPI-lasso-knockoffs"],
             rotation=45,
             ha="right",
             fontsize=18 
@@ -34,8 +34,8 @@ def plot_results(bounds, fdr, nsubjects, n_clusters, rho, y_method, offset, powe
     else:
         plt.hlines(fdr, xmin=0.5, xmax=3.5, label="Requested FDR control", color="red")
         plt.xticks(
-            [1, 2],
-            ["MX Knockoffs", "CPI-knockoffs"],
+            [1, 2, 3],
+            ["MX Knockoffs", "CPI-knockoffs", "CPI-lasso-knockoffs"],
             rotation=45,
             ha="right",
             fontsize=18  
@@ -53,8 +53,10 @@ fdps_mx=df_res['fdp_mx']
 powers_mx=df_res['power_mx']
 fdps_cpi=df_res['fdp_cpi']
 powers_cpi=df_res['power_cpi']
-fdps = [fdps_mx, fdps_cpi]
-powers = [powers_mx, powers_cpi]
+fdps_cpi_lasso=df_res['fdp_cpi_lasso']
+powers_cpi_lasso=df_res['power_cpi_lasso']
+fdps = [fdps_mx, fdps_cpi, fdps_cpi_lasso]
+powers = [powers_mx, powers_cpi, powers_cpi_lasso]
 
 plot_results(fdps, fdr, n_subjects, n_clusters, rho, y_method=y_method, offset=offset)
 plot_results(powers, fdr, n_subjects, n_clusters, rho,y_method=y_method,  offset=offset, power=True)

@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-
 n_subjects = 100
 n_clusters = 50
 rhos = [0, 0.1, 0.3, 0.5, 0.7, 0.9]
@@ -16,7 +15,7 @@ offset=1
 verbose_R2=True
 
 df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}.csv")
-palette = {'CPI-knockoff': 'purple', 'm-X-knockoff': 'blue'}
+palette = {'CPI-knockoff': 'purple', 'm-X-knockoff': 'blue', 'CPI-LS-knockoff': 'green'}
 
 sns.set(rc={'figure.figsize':(4,4)})
 sns.lineplot(data=df,x='rho',y='fdr',hue='method',palette=palette)#,style='Regressor',markers=markers, dashes=dashes)
@@ -39,7 +38,7 @@ plt.savefig(f"visualization/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{of
 
 df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}.csv")
 plt.figure()
-palette = {'CPI-knockoff': 'purple', 'm-X-knockoff': 'blue'}
+
 
 sns.set(rc={'figure.figsize':(4,4)})
 sns.lineplot(data=df,x='rho',y='power',hue='method',palette=palette)#,style='Regressor',markers=markers, dashes=dashes)
@@ -66,7 +65,6 @@ plt.savefig(f"visualization/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{of
 
 df = pd.read_csv(f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}.csv")
 plt.figure()
-palette = {'CPI-knockoff': 'purple', 'm-X-knockoff': 'blue'}
 
 sns.set(rc={'figure.figsize':(4,4)})
 sns.lineplot(data=df,x='rho',y="score",hue='method',palette=palette)#,style='Regressor',markers=markers, dashes=dashes)

@@ -234,7 +234,7 @@ def GenToysDataset(n=1000, d=10, cor='toep', y_method="nonlin", k=2, mu=None, rh
 
         poly_transformer = PolynomialFeatures(
             degree=3, interaction_only=True
-        )  # Maybe you actually don't want interaction_only=True
+        )  
         features = poly_transformer.fit_transform(X[:, non_zero_index])
 
         # coefficient associated to each feature, can be either -1, or 1 with equal probability
