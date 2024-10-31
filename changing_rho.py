@@ -15,7 +15,7 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
 
 n_subjects = 1000
-n_clusters = 500
+n_clusters = 5000
 rhos = [0, 0.1, 0.3, 0.5, 0.7, 0.9]
 sparsity = 0.1
 fdr = 0.2
