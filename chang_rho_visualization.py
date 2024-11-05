@@ -5,12 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+
 n_subjects = 1000
 n_clusters = 500
 rhos = [0, 0.1, 0.3, 0.5, 0.7, 0.9]
 sparsity = 0.1
 fdr = 0.2
-y_method='lin'
+y_method='nonlin'
 offset=1
 verbose_R2=True
 
