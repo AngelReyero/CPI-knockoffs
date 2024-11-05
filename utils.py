@@ -14,6 +14,8 @@ from sklearn.preprocessing import PolynomialFeatures
 from hidimstat.data_simulation import simu_data
 from joblib import Parallel, delayed
 from sklearn.linear_model import Lasso
+from sklearn.svm import SVR
+
 
 
 def hypertune_predictor(estimator, X, y, param_grid, n_jobs=10):
@@ -118,7 +120,7 @@ def best_mod(X_train, y_train, seed=2024, n_jobs=10, verbose=False, regressor=No
         'max_depth': [None, 10, 30],  
         'min_samples_split': [2, 10], 
         'min_samples_leaf': [1, 4],  
-        'max_features': ['auto', 'sqrt'], 
+        'max_features': ['log2', 'sqrt'], 
         'bootstrap': [True] 
     }
 
@@ -169,7 +171,7 @@ def best_mod(X_train, y_train, seed=2024, n_jobs=10, verbose=False, regressor=No
         'tol': [1e-4, 1e-3, 1e-2],                       # Tolerance for stopping criteria
     }
 
-# Hypertune the Lasso model
+    # Hypertune the Lasso model
     modelLasso, Lasso_score = hypertune_predictor(modelLasso, X_train, y_train, lasso_param_grid, n_jobs=n_jobs)
 
     print("Lasso score: " + str(Lasso_score))
@@ -179,8 +181,21 @@ def best_mod(X_train, y_train, seed=2024, n_jobs=10, verbose=False, regressor=No
     #     if score>best_score:
     #         best_score=score
     #         best_model=model
-    models=[modelRF, modelGB, modelxgb, modelLasso]
-    scores=[RF_score, GB_score, xgb_score, Lasso_score]
+
+    model_svm = SVR()
+
+    svm_param_grid = {
+        'kernel': ['linear', 'rbf'],        # Type of kernel function: linear or RBF
+        'C': [0.1, 1, 10],                  # Regularization parameter
+        'epsilon': [0.01, 0.1, 0.2],        # Epsilon in the epsilon-SVR model
+        'gamma': ['scale', 'auto'],         # Kernel coefficient for 'rbf' kernel
+    }
+    modelSVM, SVM_score = hypertune_predictor(model_svm, X_train, y_train, svm_param_grid, n_jobs=n_jobs)
+
+    print("SVM score: " + str(SVM_score))
+    
+    models=[modelRF, modelGB, modelxgb, modelLasso, modelSVM]
+    scores=[RF_score, GB_score, xgb_score, Lasso_score, SVM_score]
     max_index = scores.index(max(scores))
     print(f'Best model:{max_index} with score {scores[max_index]}')
     #print(f"Best score is:{best_score}")

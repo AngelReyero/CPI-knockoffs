@@ -8,8 +8,10 @@ n_clusters = 500
 rho = 0.7
 sparsity = 0.1
 fdr = 0.2
-y_method='lin'
+y_method='nonlin'
 offset=1
+
+
 
 def plot_results(bounds, fdr, nsubjects, n_clusters, rho, y_method, offset, power=False):
     plt.figure(figsize=(10, 10), layout="constrained")
