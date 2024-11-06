@@ -245,7 +245,7 @@ def GenToysDataset(n=1000, d=10, cor='toep', y_method="nonlin", k=2, mu=None, rh
         non_zero_index=np.array([0,1,2, 3, 4])
     elif y_method =="poly":
         rng = np.random.RandomState(seed)
-        non_zero_index = rng.choice(n, int(sparsity*d), replace=False)
+        non_zero_index = rng.choice(d, int(sparsity*d), replace=False)
 
         poly_transformer = PolynomialFeatures(
             degree=3, interaction_only=True

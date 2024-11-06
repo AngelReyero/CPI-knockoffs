@@ -48,7 +48,7 @@ n_clusters = 500
 rho = 0.7
 sparsity = 0.1
 fdr = 0.2
-y_method='nonlin2'
+y_method='poly'
 offset=1
 
 
