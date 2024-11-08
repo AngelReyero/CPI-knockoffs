@@ -15,6 +15,12 @@ from hidimstat.data_simulation import simu_data
 from joblib import Parallel, delayed
 from sklearn.linear_model import Lasso
 from sklearn.svm import SVR
+from sklearn.ensemble import StackingRegressor, HistGradientBoostingRegressor
+from sklearn.linear_model import RidgeCV, Ridge
+from sklearn.svm import SVR
+from sklearn.model_selection import RandomizedSearchCV
+from scipy.stats import uniform, randint
+
 
 
 
@@ -89,7 +95,57 @@ class CPI_sampler():
 
 
 
-def best_mod(X_train, y_train, seed=2024, n_jobs=10, verbose=False, regressor=None, dict_reg=None):
+def best_mod(X_train, y_train, seed=2024, n_jobs=10, verbose=False, regressor=None, dict_reg=None, super_learner=False):
+    if super_learner:
+                # Define base estimators
+        estimators = [
+            ('lr', RidgeCV()),
+            ('lasso', Lasso()),
+            ('svr', SVR()),  # Use SVR instead of LinearSVR
+            ('hgb', HistGradientBoostingRegressor(random_state=seed))
+        ]
+
+        # Define the parameter grid for RandomizedSearchCV
+        param_grid = {
+            'lr__alphas': [np.logspace(-6, 6, 13)],  # Alphas for RidgeCV
+            'lasso__alpha': uniform(0.001, 1.0), 
+            'svr__C': uniform(0.1, 100),  # C parameter for SVR
+            'svr__kernel': ['linear', 'poly', 'rbf', 'sigmoid'],  # Different kernels for SVR
+            'svr__gamma': ['scale', 'auto'],  # Gamma parameter for SVR
+            'hgb__max_iter': randint(100, 1000),  # Max iterations for HistGradientBoostingRegressor
+            'hgb__learning_rate': uniform(0.01, 0.3),  # Learning rate for HistGradientBoostingRegressor
+            'final_estimator__alpha': uniform(0.1, 10)  # Alpha parameter for Ridge
+        }
+
+        # Final estimator: Ridge regression
+        final_estimator = Ridge()
+
+        # Initialize StackingRegressor
+        stacking_regressor = StackingRegressor(
+            estimators=estimators,
+            final_estimator=final_estimator
+        )
+
+        # Perform RandomizedSearchCV to tune hyperparameters
+        random_search = RandomizedSearchCV(
+            stacking_regressor,
+            param_distributions=param_grid,
+            n_iter=50,  # Number of iterations for random search
+            cv=5,  # Number of cross-validation folds
+            random_state=seed,
+            n_jobs=n_jobs
+        )
+
+        # Fit the model
+        random_search.fit(X_train, y_train)
+
+        # Best model
+        best_model = random_search.best_estimator_
+        score = random_search.best_score_
+        if verbose: 
+            return best_model, score
+        else:
+            return best_model
     if regressor is not None:
         model, score=hypertune_predictor(regressor, X_train, y_train, dict_reg, n_jobs=n_jobs)
         if verbose: 

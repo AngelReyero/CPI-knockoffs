@@ -105,6 +105,7 @@ def CPI_knockoff(
     verbose_R2=False,
     best_model=None,
     dict_model=None,
+    super_learner=False,
 ):
     """CPI-Knockoff
 
@@ -166,9 +167,9 @@ def CPI_knockoff(
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=seed)
     if verbose_R2:
-        model, score=best_mod(X_train, y_train, seed=seed, verbose=True, regressor=best_model, dict_reg=dict_model)
+        model, score=best_mod(X_train, y_train, seed=seed, verbose=True, regressor=best_model, dict_reg=dict_model, super_learner=super_learner)
     else: 
-        model=best_mod(X_train, y_train, seed=seed, regressor=best_model, dict_reg=dict_model)
+        model=best_mod(X_train, y_train, seed=seed, regressor=best_model, dict_reg=dict_model, super_learner=super_learner)
 
     X_tilde = knockoff_generation(X_train, X_test, n_jobs=n_jobs)
     test_score = stat_coef_diff(

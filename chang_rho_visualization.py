@@ -11,7 +11,7 @@ n_clusters = 500
 rhos = [0, 0.1, 0.3, 0.5, 0.7, 0.9]
 sparsity = 0.1
 fdr = 0.2
-y_method='poly'
+y_method='hidimstats'
 offset=1
 verbose_R2=True
 
