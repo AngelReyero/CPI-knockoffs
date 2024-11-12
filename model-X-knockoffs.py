@@ -43,19 +43,19 @@ warnings.filterwarnings("ignore")
 plt.rcParams.update({"font.size": 26})
 
 # Number of observations
-n_subjects = 100
+n_subjects = 1000
 n_clusters = 50
 rho = 0.7
 sparsity = 0.1
 fdr = 0.2
-y_method='hidimstats'
+y_method='poly'
 offset=1
 super_learner=True
 
 seed = 0
 n_bootstraps = 25
 n_jobs = 10
-runs = 3
+runs = 10
 rng = check_random_state(seed)
 seed_list = rng.randint(1, np.iinfo(np.int32).max, runs)
 

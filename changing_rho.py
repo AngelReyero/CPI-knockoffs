@@ -22,7 +22,7 @@ fdr = 0.2
 y_method='hidimstats'
 offset=1
 verbose_R2=True
-
+super_learner=True
 
 best_model=None
 dict_model=None
@@ -37,12 +37,12 @@ seed_list = rng.randint(1, np.iinfo(np.int32).max, runs)
 
 
 def single_run(
-    n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=0, y_method='nonlin', offset=0,verbose_R2=False,best_model=None, dict_model=None,
+    n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=0, y_method='nonlin', offset=0,verbose_R2=False,best_model=None, dict_model=None,super_learner=False,
 ):
     
     X, y, non_zero_index = GenToysDataset(n=n_subjects, d=n_clusters, cor='toep', y_method=y_method, k=2, mu=None, rho_toep=rho, sparsity=sparsity, seed=seed)
     if verbose_R2:
-        cpi_selection, score_CPI = CPI_knockoff(X, y, fdr=fdr, n_jobs=n_jobs, seed=seed, offset=offset, verbose_R2=verbose_R2, best_model=None, dict_model=None)
+        cpi_selection, score_CPI = CPI_knockoff(X, y, fdr=fdr, n_jobs=n_jobs, seed=seed, offset=offset, verbose_R2=verbose_R2, best_model=None, dict_model=None, super_learner=super_learner)
         n_lambdas=10
         n_features = X.shape[1]
         lambda_max = np.max(np.dot(X.T, y)) / (n_features)
@@ -93,14 +93,14 @@ for j,rho in enumerate(rhos):
     for i, seed in enumerate(seed_list):
         if verbose_R2:
             fdp_cpi, fdp_mx, fdp_cpi_lasso, power_cpi, power_mx, power_cpi_lasso, score_CPI, score_MX, score_CPI_lasso= single_run(
-            n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=seed , y_method=y_method,offset=offset, verbose_R2=True, best_model=best_model, dict_model=dict_model,
+            n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=seed , y_method=y_method,offset=offset, verbose_R2=True, best_model=best_model, dict_model=dict_model,super_learner=super_learner,
         )
             res_score[0, i, j]=score_MX
             res_score[1, i, j]=score_CPI
             res_score[2, i, j]=score_CPI_lasso
         else:
             fdp_cpi, fdp_mx, fdp_cpi_lasso, power_cpi, power_mx, power_cpi_lasso = single_run(
-                n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=seed , y_method=y_method,offset=offset,verbose_R2=False, best_model=best_model, dict_model=dict_model,
+                n_subjects, n_clusters, rho, sparsity, fdr, n_jobs, seed=seed , y_method=y_method,offset=offset,verbose_R2=False, best_model=best_model, dict_model=dict_model,super_learner=super_learner
             )
         res_fdp[0, i, j]=fdp_mx
         res_fdp[1, i, j]=fdp_cpi
@@ -133,7 +133,13 @@ for l in range(runs):
                 f_res1["score"]=res_score[i,l, j]
             f_res1=pd.DataFrame(f_res1)
             f_res=pd.concat([f_res, f_res1], ignore_index=True)
-f_res.to_csv(
-    f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}.csv",
-    index=False,
-) 
+if super_learner:
+    f_res.to_csv(
+        f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}_super.csv",
+        index=False,
+    ) 
+else: 
+ f_res.to_csv(
+        f"results_csv/rho_{y_method}_n{n_subjects}_p{n_clusters}_offset{offset}_score{verbose_R2}.csv",
+        index=False,
+    ) 

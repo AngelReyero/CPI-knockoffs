@@ -2,17 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-# Number of observations
-n_subjects = 100
+n_subjects = 1000
 n_clusters = 50
 rho = 0.7
 sparsity = 0.1
 fdr = 0.2
-y_method='hidimstats'
+y_method='poly'
 offset=1
 super_learner=True
-
-
 
 def plot_results(bounds, fdr, nsubjects, n_clusters, rho, y_method, offset, power=False, super_learner=False):
     plt.figure(figsize=(10, 10), layout="constrained")
